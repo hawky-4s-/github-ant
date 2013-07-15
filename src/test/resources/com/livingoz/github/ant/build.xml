@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="github-ant test build" basedir=".">
 
+  <!-- ============ Typedefs =========== -->
+  <taskdef resource="com/livingoz/github/ant/ant-tasks.properties">
+    <classpath>
+      <fileset dir="${project.build.directory}"></fileset>
+    </classpath>
+  </taskdef>
+
+
   <target name="forkRepository">
 
   </target>

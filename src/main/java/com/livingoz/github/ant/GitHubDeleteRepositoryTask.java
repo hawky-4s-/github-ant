@@ -11,7 +11,7 @@ import java.util.List;
 
 public class GitHubDeleteRepositoryTask extends GitHubRepositoryServiceAction {
 
-  String postfix = "";
+  String postfix;
 
   @Override
   public void execute() throws BuildException {
@@ -29,15 +29,27 @@ public class GitHubDeleteRepositoryTask extends GitHubRepositoryServiceAction {
     setPostfix(postfix);
 
     RepositoryId repositoryId = GitHubUtil.parseRepositoryFromUrl(repositoryUrl);
-    List<Repository> repositories = getRepositoryService().getRepositories(user);
 
-    if (!GitHubUtil.repositoryAlreadyExists(getRepositoryService(), user, repositoryId, postfix)) {
+    // check for repository in user space
+    RepositoryId userRepository = RepositoryId.create(user, repositoryId.getName());
+    if (!GitHubUtil.repositoryExists(getRepositoryService(), userRepository)) {
+      throw new RuntimeException("Repository '" + userRepository.generateId() + "' doesn't exists in space '" + user + "'.");
+    }
+
+
+    if (postfix != null) {
+      repositoryId = RepositoryId.createFromId(repositoryId.generateId() + postfix);
+    }
+
+
+
+    List<Repository> repositories = getRepositoryService().getRepositories();
+
+    if (!GitHubUtil.repositoryExists(getRepositoryService(), repositoryId)) {
       throw new RuntimeException("Repository '" + repositoryId.generateId() + "' does not exist!");
     }
 
-    if (!postfix.isEmpty()) {
-      repositoryId = RepositoryId.createFromId(repositoryId.generateId() + postfix);
-    }
+
 
     // delete repository here!
 

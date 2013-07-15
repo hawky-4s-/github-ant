@@ -2,9 +2,9 @@ package com.livingoz.github.ant;
 
 import org.apache.tools.ant.BuildFileTest;
 
-public class GitHubForkRepositoryTaskTest extends BuildFileTest {
+public class GitHubAntTaskTest extends BuildFileTest {
 
-  public GitHubForkRepositoryTaskTest() {
+  public GitHubAntTaskTest() {
     super();
   }
 

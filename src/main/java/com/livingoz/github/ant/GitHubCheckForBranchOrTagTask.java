@@ -11,21 +11,19 @@ import java.util.List;
 
 public class GitHubCheckForBranchOrTagTask extends GitHubRepositoryServiceAction {
 
-  String postfix = "";
+  String postfix;
   String branchOrTagName;
 
   @Override
   public void execute() throws BuildException {
     try {
-      if (!branchOrTagExists(user, password, repositoryUrl, postfix, branchOrTagName)) {
-        throw new BuildException("Branch or Tag with name '" + branchOrTagName + "' does not exists @ '" + repositoryUrl + "'");
-      }
+      branchOrTagExists(user, password, repositoryUrl, postfix, branchOrTagName);
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
   }
 
-  public boolean branchOrTagExists(String user, String password, String repositoryUrl, String postfix, String branchOrTagName)
+  public void branchOrTagExists(String user, String password, String repositoryUrl, String postfix, String branchOrTagName)
       throws IOException {
     setUser(user);
     setPassword(password);
@@ -34,21 +32,21 @@ public class GitHubCheckForBranchOrTagTask extends GitHubRepositoryServiceAction
     setBranchOrTagName(branchOrTagName);
 
     RepositoryId repositoryId = GitHubUtil.parseRepositoryFromUrl(repositoryUrl);
-    List<Repository> repositories = getRepositoryService().getRepositories(user);
 
-    if (!GitHubUtil.repositoryAlreadyExists(getRepositoryService(), user, repositoryId, postfix)) {
-      throw new RuntimeException("Repository '" + repositoryId.generateId() + "' does not exist!");
+    if (postfix != null) {
+      repositoryId = RepositoryId.createFromId(repositoryId.generateId() + postfix);
     }
 
-    if (!postfix.isEmpty()) {
-      repositoryId = RepositoryId.createFromId(repositoryId.generateId() + postfix);
+    if (!GitHubUtil.repositoryExists(getRepositoryService(), repositoryId)) {
+      throw new RuntimeException("Repository '" + repositoryId.generateId() + "' does not exist!");
     }
 
     // check for branch first
     List<RepositoryBranch> branches = getRepositoryService().getBranches(repositoryId);
     for (RepositoryBranch branch : branches) {
       if (branch.getName().equals(branchOrTagName)) {
-        return true;
+        log("Branch '" + branchOrTagName + "' found in GitHub repository '" + repositoryId.generateId() + "'.");
+        return;
       }
     }
 
@@ -56,13 +54,12 @@ public class GitHubCheckForBranchOrTagTask extends GitHubRepositoryServiceAction
     List<RepositoryTag> tags = getRepositoryService().getTags(repositoryId);
     for (RepositoryTag tag : tags) {
       if (tag.getName().equals(branchOrTagName)) {
-        return true;
+        log("Tag '" + branchOrTagName + "' found in GitHub repository '" + repositoryId.generateId() + "'.");
+        return;
       }
     }
 
-    log("Branch Deleted GitHub repository '" + repositoryId.generateId() + "'.");
-
-    return false;
+    throw new BuildException("Branch or Tag with name '" + branchOrTagName + "' does not exists @ '" + repositoryUrl + "'");
   }
 
   public void setPostfix(String postfix) {

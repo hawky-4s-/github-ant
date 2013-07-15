@@ -32,27 +32,28 @@ public class GitHubUtil {
     return RepositoryId.createFromUrl(repositoryUrl);
   }
 
-  public static boolean repositoryAlreadyExists(RepositoryService repositoryService, String user, RepositoryId repositoryId, String postfix)
+  public static boolean repositoryExists(RepositoryService repositoryService, RepositoryId repositoryId)
       throws IOException {
-    RepositoryId repoId = RepositoryId.create(user, repositoryId.getName());
-    RepositoryId renamedRepository = RepositoryId.createFromId(repoId.generateId() + postfix);
-    List<Repository> repositories = repositoryService.getRepositories(user);
+    List<Repository> repositories = repositoryService.getRepositories();
+
     for (Repository repository : repositories) {
-      if (repository.generateId().equals(repoId.generateId())) {
+      if (repository.generateId().equals(repositoryId.generateId())) {
         return true;
-      }
-      if (postfix != null && !postfix.isEmpty()) {
-        if (repository.generateId().equals(renamedRepository.generateId())) {
-          return true;
-        }
       }
     }
 
     return false;
   }
 
+  public static boolean repositoryAlreadyExists(RepositoryService repositoryService, String user, String repositoryName)
+      throws IOException {
+    RepositoryId repositoryId = RepositoryId.create(user, repositoryName);
+
+    return repositoryExists(repositoryService, repositoryId);
+  }
+
   /**
-   * Deploy deploy key with given id from given repository
+   * Delete repository with given id
    *
    * @param gitHubClient
    * @param repository
