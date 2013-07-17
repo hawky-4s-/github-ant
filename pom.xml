@@ -91,7 +91,41 @@
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>com.atlassian.maven.plugins</groupId>
+        <artifactId>maven-jgitflow-plugin</artifactId>
+        <version>1.0-alpha8</version>
+        <configuration>
+          <!-- see goals wiki page for configuration options -->
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+
+  <developers>
+    <developer>
+      <name>Christian Lipphardt</name>
+      <email>christian.lipphardt@googlemail.com</email>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name></name>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:https://github.com/hawky-4s-/github-ant.git</connection>
+    <developerConnection>scm:git:ssh://github.com/hawky-4s-/github-ant.git</developerConnection>
+  </scm>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>camunda-bpm-snapshots</id>
+      <url>https://app.camunda.com/nexus/content/repositories/camunda-bpm-snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 
 </project>

@@ -10,18 +10,20 @@ public class GitHubForkRepositoryTask extends GitHubRepositoryServiceAction {
 
   String postfix;
 
+  public GitHubForkRepositoryTask() {
+    super();
+  }
+
   @Override
   public void execute() throws BuildException {
     try {
-      forkRepository(user, password, repositoryUrl, postfix);
+      forkRepository(getCredentials(), repositoryUrl, postfix);
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
   }
 
-  public void forkRepository(String user, String password, String repositoryUrl, String postfix) throws IOException {
-    setUser(user);
-    setPassword(password);
+  public Repository forkRepository(Credentials credentials, String repositoryUrl, String postfix) throws IOException {
     setRepositoryUrl(repositoryUrl);
     setPostfix(postfix);
 
@@ -33,16 +35,16 @@ public class GitHubForkRepositoryTask extends GitHubRepositoryServiceAction {
     }
 
     // check for repository in user space
-    RepositoryId forkedRepositoryId = RepositoryId.create(user, originalRepository.getName());
+    RepositoryId forkedRepositoryId = RepositoryId.create(credentials.getUser(), originalRepository.getName());
     if (GitHubUtil.repositoryExists(getRepositoryService(), forkedRepositoryId)) {
-      throw new RuntimeException("Repository '" + forkedRepositoryId.generateId() + "' already exists in space '" + user + "'.");
+      throw new RuntimeException("Repository '" + forkedRepositoryId.generateId() + "' already exists in space '" + credentials.getUser() + "'.");
     }
 
     // check for renamed repository in user space
     if (postfix != null) {
-      RepositoryId renamedRepository = RepositoryId.create(user, forkedRepositoryId.getName() + postfix);
+      RepositoryId renamedRepository = RepositoryId.create(credentials.getUser(), forkedRepositoryId.getName() + postfix);
       if (GitHubUtil.repositoryExists(getRepositoryService(), renamedRepository)) {
-        throw new RuntimeException("Renamed repository '" + renamedRepository.generateId() + "' already exists in space '" + user + "'.");
+        throw new RuntimeException("Renamed repository '" + renamedRepository.generateId() + "' already exists in space '" + credentials.getUser() + "'.");
       }
     }
 
@@ -56,6 +58,8 @@ public class GitHubForkRepositoryTask extends GitHubRepositoryServiceAction {
       forkedRepository = getRepositoryService().editRepository(forkedRepository);
       log("Renaming forked GitHub repository '" + forkedRepositoryId.generateId() + "' to '" + forkedRepository.generateId() + "'");
     }
+
+    return forkedRepository;
   }
 
   public void setPostfix(String postfix) {

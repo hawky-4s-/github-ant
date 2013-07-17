@@ -1,13 +1,18 @@
 package com.livingoz.github.ant;
 
+import org.apache.tools.ant.Project;
 import org.eclipse.egit.github.core.IRepositoryIdProvider;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import static org.eclipse.egit.github.core.client.IGitHubConstants.SEGMENT_REPOS;
 
@@ -84,4 +89,69 @@ public class GitHubUtil {
     return id;
   }
 
+  public static Properties getProperties(String propertyFileLocation) {
+    Properties props = new Properties();
+
+    File homeDir = null;
+    if (propertyFileLocation == null) {
+      homeDir = new File(System.getProperty("user.home"));
+    } else {
+      homeDir = new File(propertyFileLocation);
+    }
+
+    FileInputStream in = null;
+    try {
+      in = new FileInputStream(new File(homeDir, ".github"));
+      props.load(in);
+    }catch (IOException e) {
+      // ignore
+    } finally {
+      try {
+        if (in != null) {
+          in.close();
+        }
+      } catch (IOException ioe) {
+        // ignore
+      }
+    }
+
+    return props;
+  }
+
+  public static Credentials getCredentials(Project project) {
+    Credentials credentials;
+
+    // check userhome/.github
+    Properties properties = GitHubUtil.getProperties(null);
+    String filePath = project.getProperty("github.ant.filepath");
+    if (filePath != null) {
+      // check file/.github
+      properties = GitHubUtil.getProperties(filePath);
+      credentials = new Credentials(properties.getProperty("user", null),
+                                    properties.getProperty("password", null),
+                                    properties.getProperty("oauth", null));
+    } else {
+      credentials = new Credentials(project.getProperty("github.ant.user"),
+                                    project.getProperty("github.ant.password"),
+                                    project.getProperty("github.ant.oauth"));
+    }
+
+    return credentials;
+  }
+
+  public static GitHubClient createGitHubClientFromCredentials(Credentials credentials) {
+    GitHubClient gitHubClient = new GitHubClient();
+
+    String user = credentials.getUser();
+    String password = credentials.getPassword();
+    String oauthToken = credentials.getOauthToken();
+
+    if (oauthToken != null && !oauthToken.isEmpty()) {
+      return gitHubClient.setOAuth2Token(oauthToken);
+    } else if (user != null && !user.isEmpty() && password != null && !password.isEmpty()) {
+      return gitHubClient.setCredentials(user, password);
+    } else {
+      throw new RuntimeException("Unable to initialize GitHubClient: missing credentials!");
+    }
+  }
 }

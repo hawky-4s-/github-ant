@@ -1,7 +1,6 @@
 package com.livingoz.github.ant;
 
 import org.apache.tools.ant.BuildException;
-import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryBranch;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.RepositoryTag;
@@ -14,19 +13,23 @@ public class GitHubCheckForBranchOrTagTask extends GitHubRepositoryServiceAction
   String postfix;
   String branchOrTagName;
 
+  public GitHubCheckForBranchOrTagTask() {
+    super();
+  }
+
   @Override
   public void execute() throws BuildException {
     try {
-      branchOrTagExists(user, password, repositoryUrl, postfix, branchOrTagName);
+      if (!branchOrTagExists(repositoryUrl, postfix, branchOrTagName)) {
+        throw new BuildException("Branch or Tag with name '" + branchOrTagName + "' does not exists @ '" + repositoryUrl + "'");
+      }
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
   }
 
-  public void branchOrTagExists(String user, String password, String repositoryUrl, String postfix, String branchOrTagName)
+  public boolean branchOrTagExists(String repositoryUrl, String postfix, String branchOrTagName)
       throws IOException {
-    setUser(user);
-    setPassword(password);
     setRepositoryUrl(repositoryUrl);
     setPostfix(postfix);
     setBranchOrTagName(branchOrTagName);
@@ -46,7 +49,7 @@ public class GitHubCheckForBranchOrTagTask extends GitHubRepositoryServiceAction
     for (RepositoryBranch branch : branches) {
       if (branch.getName().equals(branchOrTagName)) {
         log("Branch '" + branchOrTagName + "' found in GitHub repository '" + repositoryId.generateId() + "'.");
-        return;
+        return true;
       }
     }
 
@@ -55,11 +58,11 @@ public class GitHubCheckForBranchOrTagTask extends GitHubRepositoryServiceAction
     for (RepositoryTag tag : tags) {
       if (tag.getName().equals(branchOrTagName)) {
         log("Tag '" + branchOrTagName + "' found in GitHub repository '" + repositoryId.generateId() + "'.");
-        return;
+        return true;
       }
     }
 
-    throw new BuildException("Branch or Tag with name '" + branchOrTagName + "' does not exists @ '" + repositoryUrl + "'");
+    return false;
   }
 
   public void setPostfix(String postfix) {
