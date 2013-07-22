@@ -4,7 +4,6 @@ import org.apache.tools.ant.Project;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.client.GitHubClient;
-import org.eclipse.egit.github.core.service.RepositoryService;
 import org.junit.*;
 
 import java.io.IOException;
@@ -13,6 +12,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class GitHubRepositoryTest {
 
   public static final String CAMUNDA_BPM_PLATFORM = "camunda-bpm-platform";
@@ -86,7 +86,6 @@ public class GitHubRepositoryTest {
     assertTrue(gitHubCheckForBranchOrTagTask.branchOrTagExists(repositoryUrl, "", branchOrTagName));
   }
 
-  @Ignore
   @Test
   public void deleteRepository() throws IOException {
     Credentials credentials = GitHubUtil.getCredentials(null);
