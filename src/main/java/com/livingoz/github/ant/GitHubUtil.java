@@ -39,7 +39,7 @@ public class GitHubUtil {
 
   public static boolean repositoryExists(RepositoryService repositoryService, RepositoryId repositoryId)
       throws IOException {
-    List<Repository> repositories = repositoryService.getRepositories();
+    List<Repository> repositories = repositoryService.getRepositories(repositoryId.getOwner());
 
     for (Repository repository : repositories) {
       if (repository.generateId().equals(repositoryId.generateId())) {
@@ -50,7 +50,7 @@ public class GitHubUtil {
     return false;
   }
 
-  public static boolean repositoryAlreadyExists(RepositoryService repositoryService, String user, String repositoryName)
+  public static boolean repositoryExists(RepositoryService repositoryService, String user, String repositoryName)
       throws IOException {
     RepositoryId repositoryId = RepositoryId.create(user, repositoryName);
 
@@ -119,24 +119,42 @@ public class GitHubUtil {
   }
 
   public static Credentials getCredentials(Project project) {
+    String user = null;
+    String password = null;
+    String oauth = null;
+
     Credentials credentials;
 
     // check userhome/.github
     Properties properties = GitHubUtil.getProperties(null);
-    String filePath = project.getProperty("github.ant.filepath");
-    if (filePath != null) {
-      // check file/.github
+
+    // check dir specified by property 'github.ant.filepath'
+    if (properties == null && project != null) {
+      // check dir/.github
+      try {
+      String filePath = project.getUserProperty("github.ant.filepath");
       properties = GitHubUtil.getProperties(filePath);
-      credentials = new Credentials(properties.getProperty("user", null),
-                                    properties.getProperty("password", null),
-                                    properties.getProperty("oauth", null));
-    } else {
-      credentials = new Credentials(project.getProperty("github.ant.user"),
-                                    project.getProperty("github.ant.password"),
-                                    project.getProperty("github.ant.oauth"));
+      } catch (NullPointerException e) {
+        // ignore: userproperty does not exist.
+      }
     }
 
-    return credentials;
+    if (properties != null) {
+      user = properties.getProperty("user");
+      password = properties.getProperty("password");
+      oauth = properties.getProperty("oauth");
+    } else {
+      // try to resolve properties from commandline
+      try {
+        user = project.getProperty("github.ant.user");
+        password = project.getProperty("github.ant.password");
+        oauth = project.getProperty("github.ant.oauth");
+      } catch (NullPointerException e) {
+
+      }
+    }
+
+    return Credentials.createNewCredentials(user, password, oauth);
   }
 
   public static GitHubClient createGitHubClientFromCredentials(Credentials credentials) {

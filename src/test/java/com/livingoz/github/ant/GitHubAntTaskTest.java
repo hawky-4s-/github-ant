@@ -20,4 +20,12 @@ public class GitHubAntTaskTest extends BuildFileTest {
     executeTarget("forkRepositoryWithPostfix");
   }
 
+  public void testCheckForBranchOrTag() {
+    executeTarget("checkForBranchOrTag");
+  }
+
+  public void testDeleteRepository() {
+    executeTarget("deleteRepository");
+  }
+
 }

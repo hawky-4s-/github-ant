@@ -2,25 +2,32 @@
 <project name="github-ant test build" basedir=".">
 
   <!-- ============ Typedefs =========== -->
-  <taskdef resource="com/livingoz/github/ant/ant-tasks.properties">
-    <classpath>
-      <fileset dir="${project.build.directory}"></fileset>
-    </classpath>
-  </taskdef>
+  <taskdef name="deleteRepository" classname="com.livingoz.github.ant.GitHubDeleteRepositoryTask" />
+  <taskdef name="checkForBranchOrTag" classname="com.livingoz.github.ant.GitHubCheckForBranchOrTagTask" />
+  <taskdef name="forkRepository" classname="com.livingoz.github.ant.GitHubForkRepositoryTask" />
 
 
   <target name="forkRepository">
-
+    <deleteRepository repositoryUrl="https://github.com/hawky-4s-/camunda-bpm-platform" />
+    <forkRepository repositoryUrl="https://github.com/hawky-4s-/camunda-bpm-platform" />
   </target>
 
 
   <target name="forkRepositoryWithPostfix">
+    <deleteRepository repositoryUrl="https://github.com/hawky-4s-/camunda-bpm-platform" />
+    <deleteRepository repositoryUrl="https://github.com/hawky-4s-/camunda-bpm-platform" postfix="-githubreleasetest" />
+    <forkRepository repositoryUrl="https://github.com/camunda/camunda-bpm-platform" postfix="-githubreleasetest" />
+  </target>
 
+
+  <target name="checkForBranchOrTag">
+    <checkForBranchOrTag branchOrTagname="7.0.0-alpha8" repositoryUrl="git@github.com:camunda/camunda-bpm-platform" />
   </target>
 
 
   <target name="deleteRepository">
-
+    <deleteRepository repositoryUrl="https://github.com/hawky-4s-/camunda-bpm-platform" />
+    <deleteRepository repositoryUrl="https://github.com/hawky-4s-/camunda-bpm-platform" postfix="-githubreleasetest" />
   </target>
 
 </project>

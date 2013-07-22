@@ -30,7 +30,7 @@ public class GitHubForkRepositoryTask extends GitHubRepositoryServiceAction {
     RepositoryId originalRepository = GitHubUtil.parseRepositoryFromUrl(repositoryUrl);
 
     // check for original repository
-    if (GitHubUtil.repositoryExists(getRepositoryService(), originalRepository)) {
+    if (!GitHubUtil.repositoryExists(getRepositoryService(), originalRepository)) {
       throw new RuntimeException("Original Repository '" + originalRepository.generateId() + "' doesn't exist.");
     }
 

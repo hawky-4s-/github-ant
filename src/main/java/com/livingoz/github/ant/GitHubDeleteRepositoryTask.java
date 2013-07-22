@@ -28,32 +28,35 @@ public class GitHubDeleteRepositoryTask extends GitHubRepositoryServiceAction {
     setRepositoryUrl(repositoryUrl);
     setPostfix(postfix);
 
+    boolean repositoryExists = true;
+
     RepositoryId repositoryId = GitHubUtil.parseRepositoryFromUrl(repositoryUrl);
 
     // check for repository in user space
     RepositoryId userRepository = RepositoryId.create(credentials.getUser(), repositoryId.getName());
     if (!GitHubUtil.repositoryExists(getRepositoryService(), userRepository)) {
-      throw new RuntimeException("Repository '" + userRepository.generateId() + "' doesn't exists in space '" + credentials.getUser() + "'.");
+      log("Repository '" + userRepository.generateId() + "' doesn't exists in space '" + credentials.getUser() + "'.");
+      repositoryExists = false;
     }
-
 
     if (postfix != null) {
       repositoryId = RepositoryId.createFromId(repositoryId.generateId() + postfix);
     }
 
-
-
     List<Repository> repositories = getRepositoryService().getRepositories();
 
     if (!GitHubUtil.repositoryExists(getRepositoryService(), repositoryId)) {
-      throw new RuntimeException("Repository '" + repositoryId.generateId() + "' does not exist!");
+      log("Repository '" + repositoryId.generateId() + "' does not exist!");
+      repositoryExists = false;
+    }
+
+    // delete repository here!
+    if (repositoryExists) {
+      GitHubUtil.deleteRepository(getGitHubClient(), repositoryId);
+      log("Deleted GitHub repository '" + repositoryId.generateId() + "'.");
     }
 
 
-
-    // delete repository here!
-
-    log("Deleted GitHub repository '" + repositoryId.generateId() + "'.");
   }
 
   public void setPostfix(String postfix) {

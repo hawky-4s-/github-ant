@@ -4,11 +4,12 @@ import org.apache.tools.ant.Project;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.service.RepositoryService;
 import org.junit.*;
 
 import java.io.IOException;
 
-import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -68,11 +69,13 @@ public class GitHubRepositoryTest {
     assertEquals("camunda/" + CAMUNDA_BPM_PLATFORM, repositoryId.generateId());
   }
 
-  @Ignore
   @Test
   public void forkRepositoryFromUrl() throws IOException {
     GitHubForkRepositoryTask gitHubForkRepositoryTask = new GitHubForkRepositoryTask();
-    Repository repository = gitHubForkRepositoryTask.forkRepository(new Credentials("", "", ""), repositoryUrl, postfix);
+
+    cleanRepository(gitHubForkRepositoryTask, "hawky-4s-", CAMUNDA_BPM_PLATFORM);
+
+    Repository repository = gitHubForkRepositoryTask.forkRepository(gitHubForkRepositoryTask.getCredentials(), repositoryUrl, postfix);
     assertEquals("hawky-4s-/" + CAMUNDA_BPM_PLATFORM + postfix, repository.generateId());
   }
 
@@ -86,11 +89,16 @@ public class GitHubRepositoryTest {
   @Ignore
   @Test
   public void deleteRepository() throws IOException {
-    GitHubClient gitHubClient = GitHubUtil.createGitHubClientFromCredentials(new Credentials("", "", ""));
+    Credentials credentials = GitHubUtil.getCredentials(null);
+    GitHubClient gitHubClient = GitHubUtil.createGitHubClientFromCredentials(credentials);
 
     GitHubUtil.deleteRepository(gitHubClient, RepositoryId.create(gitHubClient.getUser(), CAMUNDA_BPM_PLATFORM));
-    //GitHubDeleteRepositoryTask gitHubDeleteRepositoryTask = new GitHubDeleteRepositoryTask();
-    //gitHubDeleteRepositoryTask.deleteRepository(user, password, repositoryUrl, postfix);
   }
 
+  private void cleanRepository(GitHubRepositoryServiceAction gitHubRepositoryServiceAction, String user, String repositoryName) throws IOException {
+    if (GitHubUtil.repositoryExists(gitHubRepositoryServiceAction.getRepositoryService(), user, repositoryName)) {
+      GitHubUtil.deleteRepository(gitHubRepositoryServiceAction.getGitHubClient(),
+          RepositoryId.create(gitHubRepositoryServiceAction.getGitHubClient().getUser(), repositoryName));
+    }
+  }
 }

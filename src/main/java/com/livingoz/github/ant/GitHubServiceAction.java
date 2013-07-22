@@ -6,7 +6,7 @@ import org.eclipse.egit.github.core.client.GitHubClient;
 public abstract class GitHubServiceAction extends Task {
 
   private final GitHubClient gitHubClient;
-  private final Credentials credentials;
+  private Credentials credentials;
 
   GitHubServiceAction() {
     credentials = GitHubUtil.getCredentials(getProject());
@@ -19,6 +19,10 @@ public abstract class GitHubServiceAction extends Task {
 
   public Credentials getCredentials() {
     return credentials;
+  }
+
+  public void setCredentials(Credentials credentials) {
+    this.credentials = credentials;
   }
 
 }

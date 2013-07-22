@@ -23,4 +23,8 @@ public class Credentials {
   public String getOauthToken() {
     return oauthToken;
   }
+
+  public static Credentials createNewCredentials(final String user, final String password, final String oauthToken) {
+    return new Credentials(user, password, oauthToken);
+  }
 }
