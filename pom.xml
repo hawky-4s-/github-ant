@@ -102,6 +102,11 @@
     </plugins>
   </build>
 
+  <organization>
+    <name>camunda.org</name>
+    <url>http://www.camunda.org</url>
+  </organization>
+
   <developers>
     <developer>
       <name>Christian Lipphardt</name>
@@ -111,7 +116,8 @@
 
   <licenses>
     <license>
-      <name></name>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
 

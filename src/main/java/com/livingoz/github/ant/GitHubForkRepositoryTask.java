@@ -5,6 +5,8 @@ import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryId;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class GitHubForkRepositoryTask extends GitHubRepositoryServiceAction {
 
@@ -18,12 +20,12 @@ public class GitHubForkRepositoryTask extends GitHubRepositoryServiceAction {
   public void execute() throws BuildException {
     try {
       forkRepository(getCredentials(), repositoryUrl, postfix);
-    } catch (IOException e) {
+    } catch (Exception e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
   }
 
-  public Repository forkRepository(Credentials credentials, String repositoryUrl, String postfix) throws IOException {
+  public Repository forkRepository(Credentials credentials, String repositoryUrl, String postfix) throws IOException, InterruptedException {
     setRepositoryUrl(repositoryUrl);
     setPostfix(postfix);
 
@@ -51,11 +53,13 @@ public class GitHubForkRepositoryTask extends GitHubRepositoryServiceAction {
     // fork
     log("Forking GitHub repository '" + originalRepository.generateId() + "' to '" + forkedRepositoryId.generateId() + "'");
     Repository forkedRepository = getRepositoryService().forkRepository(originalRepository);
+    TimeUnit.SECONDS.sleep(5);
 
     // rename
     if (postfix != null) {
-      forkedRepository.setName(forkedRepository.getName() + postfix);
-      forkedRepository = getRepositoryService().editRepository(forkedRepository);
+      HashMap<String, Object> fields = new HashMap<String, Object>();
+      fields.put("name", forkedRepository.getName() + postfix);
+      forkedRepository = getRepositoryService().editRepository(forkedRepository, fields);
       log("Renaming forked GitHub repository '" + forkedRepositoryId.generateId() + "' to '" + forkedRepository.generateId() + "'");
     }
 

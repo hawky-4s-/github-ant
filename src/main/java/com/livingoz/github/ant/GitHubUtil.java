@@ -140,9 +140,9 @@ public class GitHubUtil {
     }
 
     if (properties != null) {
-      user = properties.getProperty("user");
-      password = properties.getProperty("password");
-      oauth = properties.getProperty("oauth");
+      user = properties.getProperty("github.ant.user");
+      password = properties.getProperty("github.ant.password");
+      oauth = properties.getProperty("github.ant.oauth");
     } else {
       // try to resolve properties from commandline
       try {

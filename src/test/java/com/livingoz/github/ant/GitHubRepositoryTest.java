@@ -70,7 +70,7 @@ public class GitHubRepositoryTest {
   }
 
   @Test
-  public void forkRepositoryFromUrl() throws IOException {
+  public void forkRepositoryFromUrl() throws IOException, InterruptedException {
     GitHubForkRepositoryTask gitHubForkRepositoryTask = new GitHubForkRepositoryTask();
 
     cleanRepository(gitHubForkRepositoryTask, "hawky-4s-", CAMUNDA_BPM_PLATFORM);

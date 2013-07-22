@@ -43,8 +43,6 @@ public class GitHubDeleteRepositoryTask extends GitHubRepositoryServiceAction {
       repositoryId = RepositoryId.createFromId(repositoryId.generateId() + postfix);
     }
 
-    List<Repository> repositories = getRepositoryService().getRepositories();
-
     if (!GitHubUtil.repositoryExists(getRepositoryService(), repositoryId)) {
       log("Repository '" + repositoryId.generateId() + "' does not exist!");
       repositoryExists = false;
